@@ -1,0 +1,244 @@
+@startuml Marketplace
+
+!define MAIN_COLOR #E6E6FA
+!define SUB_COLOR #ADD8E6
+!define BACKGROUND_COLOR white
+
+package "Present" <<Rectangle>> {
+    class viewPage {
+        +renderView(): void
+        +submitForm(): void
+    }
+
+    
+    class viewPageAuth {
+        +renderView(): void
+        +submitForm(): void
+    }
+
+    class viewPageReg {
+        +renderView(): void
+        +submitForm(): void
+    }
+
+
+    class viewCatalog {
+        +renderView(): void
+        +submitForm(): void
+    }
+
+    class viewPageProduct {
+        +renderView(): void
+        +submitForm(): void
+    }
+
+    class viewSearchProduct {
+        +renderView(): void
+        +submitForm(): void
+    }
+
+    class viewPageOrder {
+        +renderView(): void
+        +submitForm(): void
+    }
+
+    class viewPageCart {
+        +renderView(): void
+        +submitForm(): void
+    }
+
+    class viewDelivery {
+        +renderView(): void
+        +submitForm(): void
+    }
+
+    class viewPagePayment {
+        +renderView(): void
+        +submitForm(): void
+    }
+}
+
+package "App" <<Rectangle>> {
+    class UserService {
+        +authUser(login:String, password:String): boolean
+        +regUser(login:String, password:String): boolean
+        +exitUser(): void
+        +updateUser(): UserModel
+        +getUserData(): String
+        +getOrders(): List<OrdersModel>
+    }
+
+    class ProductService {
+        +getCatalog(): void
+        +getProduct(): void
+        +getDiscount(): void
+        +searchProduct(product: String): ProductModel
+    }
+
+    class OrderService {
+        +addToCart(productID: long, number: int): void
+        +delFromCart(productID: long, number: int): void
+        +getCartItems(): List<ProductModel>
+        +placeOrder(): boolean
+        +delOrder(orderID: long): boolean
+        +payOrder(orderID: long): boolean
+        +setDelivery(orderID: long): void
+
+    }
+}
+
+package "Data" <<Rectangle>> {
+    class UserModel {
+        -id: long
+        -userFirstName: String
+        -userLastName: String
+        -userLogin: String
+        -userPassword: String
+        -userAddress: String
+        -userOrders: List<OrderModel>
+        +UserModel()
+        +get(),set()
+    }
+
+    class ProductModel {
+        -id: long
+        -productCategory: String
+        -productName: String
+        -productDescription: String
+        -productImage: File
+        -productPrice: double
+        -productQuantity: long
+        -productDiscount: long
+        +ProductModel()
+        +get(),set()
+    }
+
+    class OrderModel {
+        -id: long
+        -date: DateTime
+        -userID: long
+        -products: List<ProductModel>
+        -orderStatus: OrderStatus
+        +OrderModel()
+        +get(),set()
+    }
+
+    class CategoryModel {
+        -id: long
+        -categoryName: String
+        +CategoryModel()
+        +get(),set()
+    }
+
+    class UsersRepo {
+        -users: List<UserModel>
+        +addUser(user: UserModel):boolean
+        +delUser(user: UserModel):boolean
+    }
+
+    class ProductsRepo {
+        -products: List<ProductModel>
+        +addProduct(product: ProductModel):boolean
+        +delProduct(product: ProductModel):boolean
+    }
+
+    class Catalog {
+        -categories: List<CategoryModel>
+        +addCategory(category: CategoryModel):boolean
+        +delCategory(category: CategoryModel):boolean
+    }
+
+    class OrdersRepo {
+        -orders: List<OrderModel>
+        +addOrder(order: OrderModel):boolean
+        +delOrder(order: OrderModel):boolean
+    }
+
+    enum OrderStatus {
+        CREATED
+        PAID
+        PROCESSING
+        SHIPPED
+        DELIVERED
+        CANCELLED
+    }
+}
+
+together {
+    class viewPage
+    class viewPageAuth
+    class viewPageReg
+    class viewCatalog
+    class viewPageProduct
+    class viewSearchProduct
+    class viewPageOrder
+    class viewPageCart
+    class viewDelivery
+    class viewPagePayment
+}
+
+viewPage -[hidden] viewPageAuth
+viewPageAuth -[hidden] viewPageReg
+viewPageReg -[hidden] viewCatalog
+viewCatalog -[hidden] viewPageProduct
+viewPageProduct -[hidden] viewSearchProduct
+viewSearchProduct -[hidden] viewPageOrder
+viewPageOrder -[hidden] viewPageCart
+viewPageCart -[hidden] viewDelivery
+viewDelivery -[hidden] viewPagePayment
+
+together {
+    class UserService
+    class ProductService
+    class OrderService
+}
+
+UserService -[hidden] ProductService
+ProductService -[hidden] OrderService
+
+together {
+    class UsersRepo
+    class ProductsRepo
+    class Catalog
+    class OrdersRepo
+    class UserModel
+    class ProductModel
+    class CategoryModel
+    class OrderModel
+    enum OrderStatus
+}
+
+UserModel -[hidden] ProductModel
+ProductModel -[hidden] CategoryModel
+CategoryModel -[hidden] OrderModel
+
+
+"Present" -[hidden]-- "App"
+"App" -[hidden]- "Data"
+
+UsersRepo o-- UserModel
+ProductsRepo o-- ProductModel
+Catalog o-- CategoryModel
+OrdersRepo o-- OrderModel
+OrderStatus --* OrderModel
+
+viewPage --> UserService
+viewPageAuth --> UserService
+viewPageReg --> UserService
+
+viewCatalog --> ProductService
+viewPageProduct --> ProductService
+viewSearchProduct --> ProductService
+
+viewPageOrder --> OrderService
+viewPageCart --> OrderService
+viewDelivery --> OrderService
+viewPagePayment --> OrderService
+
+UserService *-- UsersRepo
+ProductService --> ProductsRepo
+ProductService *-- Catalog
+OrderService *-- OrdersRepo
+UserService *-- OrdersRepo
+
+@enduml
