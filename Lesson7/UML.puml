@@ -1,0 +1,60 @@
+@startuml UML
+
+package Adapter <<Rectangle>> {
+    class Receive {
+        +receiveRequest()
+    }
+
+    class Response {
+        +sendResponseJSON()
+    }
+}
+
+package Logic <<Rectangle>> {
+    interface IAdapter {
+        +processRequest()
+        +createResponse()
+    }
+
+    class ReportLogic {
+        +createTableJSON()
+        +createGraphJSON()
+        +createDiagramJSON()
+        +createHistogramJSON()
+    }
+
+    interface IDomain {
+        +getProduct()
+        +getOrders()
+        +getProvider()
+        +getCustomer()
+
+    }
+}
+
+package Domain <<Rectangle>> {
+    class GetData {
+
+    }
+    
+    package DB <<Database>> {
+
+    }
+}
+
+Adapter -[hidden]- Logic
+Logic -[hidden]- Domain
+
+IDomain -* ReportLogic
+ReportLogic *- IAdapter
+
+GetData -* DB
+
+Response ..|> IAdapter
+Receive ..|> IAdapter
+IDomain <|.. GetData
+
+Response --> ReportLogic
+Receive --> ReportLogic
+
+@enduml
