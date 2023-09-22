@@ -1,0 +1,88 @@
+@startuml rtrs
+
+package Database <<database>> {
+  class Customer {
+    - id: int
+    - name: string
+    - phone: string
+    - number_of_persons: int
+  }
+
+  class Table {
+    - id: int
+    - number: int
+  }
+
+  class Order {
+    - id: int
+    - customer_id: int
+    - holl_id: int
+    - table_id: int
+    - booking_time: datetime
+  }
+
+  Customer --* Order
+  Table --* Order
+
+}
+package Model <<rectangle>> {
+  class OrderData {
+    + customer_name: string
+    + customer_phone: string
+    + number_of_persons: int
+    + holl_id: int
+    + table_id: int
+  }
+
+  class TableData {
+    + table_id: int
+    + table_name: string
+    + table_free: bool
+  }
+  interface IOrderRepo {
+    addOrder(order_data: OrderData): int
+    changeOrder(order_id: int, order_data: OrderData): void
+  }
+
+  class OrderRepoImpl implements IOrderRepo {
+  }
+  OrderRepoImpl --> OrderData
+
+  interface ITableRepo {
+    getTable() List<TableData>
+  }
+  class TableRepoImpl implements ITableRepo{
+  }
+  TableRepoImpl --> TableData
+
+}
+
+class Presenter {
+  - TableRepoImpl: TableRepoImpl
+  - OrderRepoImpl: OrderRepoImpl
+  - View: View
+  + handleLoadTableList()
+  + handleLoadForm()
+  + handleChangeForm()
+  + handleSelectTable()
+  + handelSubmitForm()
+}
+Presenter --> TableData
+Presenter --> OrderData
+Presenter *-- TableRepoImpl
+Presenter *-- OrderRepoImpl
+Presenter *-- View
+
+class View {
+  - order_id
+  + customer_name
+  + customer_phone
+  + order_date
+  + holls
+  + tables
+  + number_of_persons
+  + submit_button
+}
+
+Model --> Database
+@enduml
