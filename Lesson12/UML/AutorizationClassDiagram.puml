@@ -1,0 +1,81 @@
+@startuml Marketplace
+
+package "Adapter" <<Rectangle>> {
+    class AccessMenu {
+         + createAutorization(User): boolean
+        + checkAutorization(User): boolean
+        + delAutorization(User): boolean
+    }
+}
+
+package "Logic" <<Rectangle>> {
+    class User {
+        - id: int
+        - login: String
+        - hashPassword: String
+        - email: String
+        - token: Token
+        + get(), set()
+
+    }
+
+    interface iAccess {
+        + createAutorization(User): boolean
+        + checkAutorization(User): boolean
+        + delAutorization(User): boolean
+    }
+
+    class AccessComp {
+        
+        + generationToken(User): Token
+        + checkToken(Token): boolean
+        + delToken(User): boolean
+
+    }
+
+    interface iRepo {
+        + getToken(User): Token
+    }
+
+    class Token {
+        - header: String
+        - hashValue: String
+        + get(), set()
+    }
+}
+
+package "Data" <<Rectangle>> {
+    class AccessRepo {
+        + users: List<User>
+        + getUser(List<User>): User
+        + getToken(User): Token
+
+    }
+
+    package "DB" <<database>> {
+
+    }
+}
+
+
+Adapter -[hidden]- Logic
+AccessRepo -[hidden] "DB"
+
+iAccess -[hidden] AccessComp
+AccessComp -[hidden] iRepo
+iAccess -[hidden]- User
+iRepo -[hidden] Token
+
+AccessMenu ..|> iAccess
+AccessMenu --> User
+iAccess --* AccessComp
+AccessComp *-- iRepo
+AccessComp --> User
+AccessMenu --> Token
+Logic -[hidden]- Data
+User <-- AccessRepo
+Token <-- AccessRepo
+iRepo <|.. AccessRepo
+AccessRepo o-- "DB"
+
+@enduml
